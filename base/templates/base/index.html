@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Derek Status</title>
+
+<script src="static/jquery-1.10.0.min.js"></script>
+<link href="static/css/styles.css" rel="stylesheet">
+
+
+<script>
+	function startTime()
+	{
+		var today = new Date();
+		var hour = today.getHours();
+		var minute = today.getMinutes();
+		var month = today.getMonth();
+		var day = today.getDate();
+		var ampm = "AM"; 
+		
+	    // add a zero in front of numbers<10
+		minute = prependZero(minute);
+	    
+	    if( hour >= 13)
+	 	{
+	    	hour = hour - 12;
+	    	ampm = "PM";
+	    		
+		}
+	    
+		var monthNames = [ "January", "February", "March", "April", "May", "June",
+		                   "July", "August", "September", "October", "November", "December" ];
+	
+		$('#datetime').text(monthNames[month] + " " + day + ", " + hour + ":" + minute + " " + ampm);
+		
+		t = setTimeout(function() {
+			startTime()
+		}, 10000);
+	}
+
+	function prependZero(i)
+	{
+		if (i < 10)
+		{
+			i = "0" + i;
+		}
+		return i;
+	}
+	
+	
+</script>
+
+</head>
+
+<body class="base" onload="startTime()">
+
+	<div style="width: 100%;">
+		<div id="datetime" class="datetime">May 22 9:47AM</div>
+		<div class="name">Derek Nelson</div>
+	</div>
+
+	<div style="clear: left; padding-top: 30px;">
+		<div style="float: right; width: 600px; padding-right: 50px;">
+			<div class="contact">
+				Firmware Engineer<br>derek.nelson@hp.com<br>Work:
+				208-396-5556<br>Cell: 360-280-3985
+			</div>
+			<div class="current_tasks" style="margin-top: 20px;">
+				<div class="current_tasks_header">Current Tasks:</div>
+				<div class="current_tasks_items">
+					<ul style="margin-top: 10px; margin-bottom: 5px;">
+						<li>Fix duration issue</li>
+						<li>CR 50543</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div style="overflow: hidden; margin-left: 30px;">
+			<table class="flat-table">
+				<colgroup>
+					<col>
+					<col style="width: 525px;">
+				</colgroup>
+				<tr>
+					<th class="times" rowspan="2">8 AM</th>
+					<td class="half-hour busy">Conformance meeting</td>
+				</tr>
+				<tr>
+					<td class="busy">Duration meeting</td>
+				</tr>
+				<tr>
+					<th class="times" rowspan="2">9 AM</th>
+					<td class="half-hour free"></td>
+				</tr>
+				<tr>
+					<td class="free tablecell"></td>
+				</tr>
+				<tr>
+					<th class="times" rowspan="2">10 AM</th>
+					<td class="half-hour free"></td>
+				</tr>
+				<tr>
+					<td class="free"></td>
+				</tr>
+				<tr>
+					<th class="times" rowspan="2">11 AM</th>
+					<td class="half-hour free"></td>
+				</tr>
+				<tr>
+					<td class="busy"></td>
+				</tr>
+				<tr>
+					<th class="times" rowspan="2">12 AM</th>
+					<td class="half-hour free"></td>
+				</tr>
+				<tr>
+					<td class="free"></td>
+				</tr>
+				<tr>
+					<th class="times" rowspan="2">1 PM</th>
+					<td class="half-hour free"></td>
+				</tr>
+				<tr>
+					<td class="free"></td>
+				</tr>
+				<tr>
+					<th class="times" rowspan="2">2 PM</th>
+					<td class="half-hour free"></td>
+				</tr>
+				<tr>
+					<td class="free"></td>
+				</tr>
+				<tr>
+					<th class="times" rowspan="2">3 PM</th>
+					<td class="half-hour free"></td>
+				</tr>
+				<tr>
+					<td class="busy"></td>
+				</tr>
+				<tr>
+					<th class="times" rowspan="2">4 PM</th>
+					<td class="half-hour free"></td>
+				</tr>
+				<tr>
+					<td class="free"></td>
+				</tr>
+				<tr>
+					<th class="times" rowspan="2">5 PM</th>
+					<td class="half-hour free"></td>
+				</tr>
+				<tr>
+					<td class="free"></td>
+				</tr>
+			</table>
+		</div>
+
+	</div>
+
+</body>
+</html>

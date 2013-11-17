@@ -1,0 +1,107 @@
+@import url("/static/css/normalize.css");
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,600);
+
+.base
+{
+	background-color:#1e1e1e;
+}
+
+.datetime
+{
+	font-family: 'Open Sans', sans-serif; font-weight: 600;
+	font-size: 45px;
+	color: #f3ca24;
+	float: left;
+	padding-left:30px;
+	
+}
+
+.name
+{
+	font-family: 'Open Sans', sans-serif; font-weight: 600;
+	font-size: 45px;
+	color: #f3ca24;
+	float:right;
+	padding-right:30px;
+}
+
+
+
+.flat-table
+{
+	margin-bottom: 20px;
+	font-family: 'Open Sans', sans-serif;
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+
+.times
+{
+	background: #eeebd9;
+	font-size: 25px;
+}
+
+.available
+{
+	background: #c3ff68;
+	padding-right: 100px;
+}
+
+.busy
+{
+	background: #ff7d68;
+	font-size: 14px;
+}
+
+.busy_same_meeting
+{
+	border-top:0;
+	background: #ff7d68;
+	font-size: 14px;
+}
+
+.flat-table td {
+	color: #000000;
+	padding: 0.5em .75em 0.5em .75em;
+	text-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
+	border: 1px solid black;
+}
+
+
+
+
+.contact
+{
+	width:600px;
+	background: #444343;
+	font-family: 'Open Sans', sans-serif; font-weight: 600;
+	font-size: 45px;
+	color: #FFFFFF;
+	margin-top:2px;
+	padding-left:15px;
+	padding-bottom:15px;
+	border-radius:5px;
+}
+
+.current_tasks
+{
+	width:600px;
+	background: #0093d0;
+	color: #FFFFFF;
+	margin-top:2px;
+	padding-left:15px;
+	padding-bottom:15px;
+	border-radius:5px;
+}
+
+.current_tasks_header
+{
+	font-family: 'Open Sans', sans-serif; font-weight: 600;
+	font-size: 45px;
+}
+
+.current_tasks_items
+{
+	font-family: 'Open Sans', sans-serif;
+	font-size: 30px;
+}
