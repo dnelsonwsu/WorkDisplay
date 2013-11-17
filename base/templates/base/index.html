@@ -46,11 +46,86 @@
 	}
 	
 	
+	function calendarPoll()
+	{
+		poll_for_calendar_changes()
+		
+		t = setTimeout(function() {
+			calendarPoll()
+		}, 100000);
+	}
+	
+	
+
+	var calendar_poll_returned = function(res, status)
+	{
+	    if (status != "success")
+	    {
+	    	return;
+	    }
+	    
+	    if(res.responseText.length == 0)
+		{
+	    	//Indicates calendar is up to date
+	    	return
+		}
+	    
+	    $('#calendar').html(res.responseText);
+	    
+	}
+	
+	function poll_for_calendar_changes()
+	{
+		var size = $('#sizedropdown').val()
+		var data = { csrfmiddlewaretoken: '{{ csrf_token }}'};
+			
+		var args = { type:"POST", url:"/calendar", data:data, complete:calendar_poll_returned };
+        $.ajax(args);
+    
+	    return false;
+	}
+	
+	function getCookie(name)
+	{
+	    var cookieValue = null;
+	    if (document.cookie && document.cookie != '') {
+	        var cookies = document.cookie.split(';');
+	        for (var i = 0; i < cookies.length; i++) {
+	            var cookie = jQuery.trim(cookies[i]);
+	            // Does this cookie string begin with the name we want?
+	            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+	                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+	                break;
+	            }
+	        }
+	    }
+	    return cookieValue;
+	}
+	
+	var csrftoken = getCookie('csrftoken');
+	
+	function csrfSafeMethod(method)
+	{
+	    // these HTTP methods do not require CSRF protection
+	    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	}
+	
+	$.ajaxSetup({
+	    crossDomain: false, // obviates need for sameOrigin test
+	    beforeSend: function(xhr, settings) {
+	        if (!csrfSafeMethod(settings.type)) {
+	            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+	        }
+	    }
+	});
+	
+	
+	
 </script>
 
 </head>
 
-<body class="base" onload="startTime()">
+<body class="base" onload="startTime(); calendarPoll();">
 
 	<div style="width: 100%;">
 		<div id="datetime" class="datetime">May 22 9:47AM</div>
@@ -74,7 +149,7 @@
 			</div>
 		</div>
 		<div style="overflow: hidden; margin-left: 30px;">
-			<table class="flat-table">
+			<table id='calendar' class="flat-table">
 				<colgroup>
 					<col>
 					<col style="width: 525px;">

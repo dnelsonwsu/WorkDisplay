@@ -1,4 +1,15 @@
-{% block calendar %}
 
-
-{% endblock %}
+<colgroup>
+	<col>
+	<col style="width: 525px;">
+</colgroup>
+{% for entry in schedule %}
+<tr>
+	<th class="times" rowspan="2">{{entry.time}}</th>
+	<td class="half-hour {{entry.first_half_hour}}">
+	{% if entry.first_half_hour_description %}{{ entry.first_half_hour_description }}{%	endif %}</td>
+</tr>
+<tr>
+	<td class="{{entry.second_half_hour}}">{% if entry.second_half_hour_description %}{{ entry.second_half_hour_description }}{% endif %}</td>
+</tr>
+{% endfor %}
