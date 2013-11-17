@@ -74,7 +74,7 @@ class ics_calendar:
         half_hour = datetime.timedelta(minutes=30)
         
         #go from 8 to 5
-        start_time = datetime.datetime(self.today.year, self.today.month, self.today.day, 8)
+        start_time = datetime.datetime(self.today.year, self.today.month, self.today.day, 9)
         end_time = datetime.datetime(self.today.year, self.today.month, self.today.day, 18)
         
         cur_time = start_time

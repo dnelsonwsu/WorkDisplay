@@ -9,20 +9,23 @@
 .datetime
 {
 	font-family: 'Open Sans', sans-serif; font-weight: 600;
-	font-size: 45px;
+	font-size: 30px;
 	color: #f3ca24;
 	float: left;
 	padding-left:30px;
+	padding-top: 10px;
 	
 }
 
 .name
 {
 	font-family: 'Open Sans', sans-serif; font-weight: 600;
-	font-size: 45px;
+	font-size: 65px;
 	color: #f3ca24;
 	float:right;
-	padding-right:30px;
+	padding-right:40px;
+	padding-top: 10px;
+	padding-bottom: 35px;
 }
 
 
@@ -51,7 +54,8 @@ th.times
 	background: #eeebd9;
 	font-size: 25px;
 	padding: 0px 10px 0px 10px;
-	height: 80px;
+	height: 60px;
+	min-width:80px;
 }
 
 .free
@@ -71,7 +75,7 @@ th.times
 	color: #000000;
 	padding: 0.5em .75em 0.5em .75em;
 	text-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
-	height: 40px;
+	height: 30px;
 	padding: 0 0 0 5px;
 	border: 1px solid black;
 	border-top-style:none;
@@ -80,7 +84,7 @@ th.times
 
 .contact
 {
-	width:600px;
+	width:500px;
 	background: #444343;
 	font-family: 'Open Sans', sans-serif; font-weight: 600;
 	font-size: 45px;
@@ -89,17 +93,19 @@ th.times
 	padding-left:15px;
 	padding-bottom:15px;
 	border-radius:5px;
+	float:right;
 }
 
 .current_tasks
 {
-	width:600px;
+	width:500px;
 	background: #0093d0;
 	color: #FFFFFF;
 	margin-top:2px;
 	padding-left:15px;
 	padding-bottom:15px;
 	border-radius:5px;
+	float:right;
 }
 
 .current_tasks_header

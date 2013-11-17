@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+
+
+{% load chunks %}
 <html>
 <head>
 <title>Derek Status</title>
@@ -11,7 +14,7 @@
 	function startTime()
 	{
 		var today = new Date();
-		var hour = today.getHours()+1;
+		var hour = today.getHours();
 		var minute = today.getMinutes();
 		var month = today.getMonth();
 		var day = today.getDate();
@@ -19,7 +22,10 @@
 		
 	    // add a zero in front of numbers<10
 		minute = prependZero(minute);
-
+		if( hour == 0 )
+		{
+			hour == 12;
+		}
 	    if( hour >= 13)
 	 	{
 	    	hour = hour - 12;
@@ -28,7 +34,7 @@
 	    
 		var monthNames = [ "January", "February", "March", "April", "May", "June",
 		                   "July", "August", "September", "October", "November", "December" ];
-	
+		
 		$('#datetime').text(monthNames[month] + " " + day + ", " + hour + ":" + minute + " " + ampm);
 		
 		t = setTimeout(function() {
@@ -48,7 +54,7 @@
 	
 	function calendarPoll()
 	{
-		poll_for_calendar_changes()
+		ajax_poll_for_changes()
 		
 		t = setTimeout(function() {
 			calendarPoll()
@@ -56,30 +62,38 @@
 	}
 	
 	
+	Object.size = function(obj) {
+	    var size = 0, key;
+	    for (key in obj) {
+	        if (obj.hasOwnProperty(key)) size++;
+	    }
+	    return size;
+	};
 
-	var calendar_poll_returned = function(res, status)
+	var ajax_poll_returned = function(res, status)
 	{
 	    if (status != "success")
 	    {
 	    	return;
 	    }
 	    
-	    if(res.responseText.length == 0)
-		{
-	    	//Indicates calendar is up to date
-	    	return
-		}
+	    if("calendar_table" in res.responseJSON)
+	    {
+		    $('#calendar').html(res.responseJSON["calendar_table"]);
+	    }
 	    
-	    $('#calendar').html(res.responseText);
-	    
+	    if("current_tasks" in res.responseJSON)
+	    {
+		    $('#current_tasks').html(res.responseJSON["current_tasks"]);
+	    }
 	}
 	
-	function poll_for_calendar_changes()
+	function ajax_poll_for_changes()
 	{
 		var size = $('#sizedropdown').val()
 		var data = { csrfmiddlewaretoken: '{{ csrf_token }}'};
 			
-		var args = { type:"POST", url:"/calendar", data:data, complete:calendar_poll_returned };
+		var args = { type:"POST", url:"/ajax_poll", data:data, complete:ajax_poll_returned };
         $.ajax(args);
     
 	    return false;
@@ -129,25 +143,28 @@
 
 	<div style="width: 100%;">
 		<div id="datetime" class="datetime">May 22 9:47AM</div>
-		<div class="name">Derek Nelson</div>
-	</div>
-
-	<div style="clear: left; padding-top: 30px;">
-		<div style="float: right; width: 600px; padding-right: 50px;">
-			<div class="contact">
-				Firmware Engineer<br>derek.nelson@hp.com<br>Work:
-				208-396-5556<br>Cell: 360-280-3985
-			</div>
-			<div class="current_tasks" style="margin-top: 20px;">
-				<div class="current_tasks_header">Current Tasks:</div>
-				<div class="current_tasks_items">
-					<ul style="margin-top: 10px; margin-bottom: 5px;">
-						<li>Fix duration issue</li>
-						<li>CR 50543</li>
-					</ul>
+		<div style="float:right;">
+			<div class="name" style="float:right;">Derek Nelson</div>
+			<div style="width: 600px; padding-right: 40px;">
+				<div class="contact">
+					Firmware Engineer<br>derek.nelson@hp.com<br>Work:
+					208-396-5556<br>Cell: 360-280-3985
+				</div>
+				<div class="current_tasks" style="margin-top: 20px;">
+					<div class="current_tasks_header">Current Tasks:</div>
+					<div class="current_tasks_items">
+						<ul id="current_tasks" style="margin-top: 10px; margin-bottom: 5px;">
+							{% chunk "current_tasks" %}
+						</ul>
+					</div>
 				</div>
 			</div>
 		</div>
+
+	</div>
+
+	<div style="clear: left; padding-top: 30px;">
+
 		<div style="overflow: hidden; margin-left: 30px;">
 			<table id='calendar' class="flat-table">
 				<colgroup>
