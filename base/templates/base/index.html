@@ -11,7 +11,7 @@
 	function startTime()
 	{
 		var today = new Date();
-		var hour = today.getHours();
+		var hour = today.getHours()+1;
 		var minute = today.getMinutes();
 		var month = today.getMonth();
 		var day = today.getDate();
@@ -19,12 +19,11 @@
 		
 	    // add a zero in front of numbers<10
 		minute = prependZero(minute);
-	    
+
 	    if( hour >= 13)
 	 	{
 	    	hour = hour - 12;
 	    	ampm = "PM";
-	    		
 		}
 	    
 		var monthNames = [ "January", "February", "March", "April", "May", "June",
@@ -80,77 +79,22 @@
 					<col>
 					<col style="width: 525px;">
 				</colgroup>
-				<tr>
-					<th class="times" rowspan="2">8 AM</th>
-					<td class="half-hour busy">Conformance meeting</td>
-				</tr>
-				<tr>
-					<td class="busy">Duration meeting</td>
-				</tr>
-				<tr>
-					<th class="times" rowspan="2">9 AM</th>
-					<td class="half-hour free"></td>
-				</tr>
-				<tr>
-					<td class="free tablecell"></td>
-				</tr>
-				<tr>
-					<th class="times" rowspan="2">10 AM</th>
-					<td class="half-hour free"></td>
-				</tr>
-				<tr>
-					<td class="free"></td>
-				</tr>
-				<tr>
-					<th class="times" rowspan="2">11 AM</th>
-					<td class="half-hour free"></td>
-				</tr>
-				<tr>
-					<td class="busy"></td>
-				</tr>
-				<tr>
-					<th class="times" rowspan="2">12 AM</th>
-					<td class="half-hour free"></td>
-				</tr>
-				<tr>
-					<td class="free"></td>
-				</tr>
-				<tr>
-					<th class="times" rowspan="2">1 PM</th>
-					<td class="half-hour free"></td>
-				</tr>
-				<tr>
-					<td class="free"></td>
-				</tr>
-				<tr>
-					<th class="times" rowspan="2">2 PM</th>
-					<td class="half-hour free"></td>
-				</tr>
-				<tr>
-					<td class="free"></td>
-				</tr>
-				<tr>
-					<th class="times" rowspan="2">3 PM</th>
-					<td class="half-hour free"></td>
-				</tr>
-				<tr>
-					<td class="busy"></td>
-				</tr>
-				<tr>
-					<th class="times" rowspan="2">4 PM</th>
-					<td class="half-hour free"></td>
-				</tr>
-				<tr>
-					<td class="free"></td>
-				</tr>
-				<tr>
-					<th class="times" rowspan="2">5 PM</th>
-					<td class="half-hour free"></td>
-				</tr>
-				<tr>
-					<td class="free"></td>
-				</tr>
+				{% for entry in schedule %}
+						<tr>
+							<th class="times" rowspan="2">{{entry.time}}</th>
+							<td class="half-hour {{entry.first_half_hour}}">
+								{% if entry.first_half_hour_description%}{{entry.first_half_hour_description}}{% endif %}
+							</td>
+						</tr>
+						<tr>
+							<td class="{{entry.second_half_hour}}">
+								{% if entry.second_half_hour_description%}{{entry.second_half_hour_description}}{% endif %}
+							</td>
+						</tr>
+					{% endfor %}
 			</table>
+			
+			
 		</div>
 
 	</div>
