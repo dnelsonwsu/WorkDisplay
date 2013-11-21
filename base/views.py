@@ -8,7 +8,7 @@ import calendar_parse
 import os.path, time
 import hashlib
 
-ics_path = '/home/py/workspace/calendar_parse/Nelson_Derek_Calendar.ics'
+ics_path = '/srv/www/dav/Nelson_Derek_Calendar.ics'
 
 def home(request):
 

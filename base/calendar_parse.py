@@ -21,18 +21,39 @@ class calendar_entry:
     def __init__(self, start_date, end_date, summary):
         self.summary = summary
          
+	self.start_date = start_date
+	self.end_date = end_date
+
+	if type(self.start_date) == datetime.date:
+		self.start_date = datetime.datetime(self.start_date.year, self.start_date.month, self.start_date.day)
+
+	if type(self.end_date) == datetime.date:
+		self.end_date = datetime.datetime(self.end_date.year, self.end_date.month, self.end_date.day)
+
+
         tz = pytz.timezone('US/Mountain')
-        self.start_date = tz.normalize(start_date)
-        self.end_date = tz.normalize(end_date)
+	try:
+        	self.start_date = tz.normalize(self.start_date)
+	        self.start_date = self.start_date.replace(tzinfo=None)
+	except:
+		pass
+
+	try:
+	        self.end_date = tz.normalize(self.end_date)
+		self.end_date = self.end_date.replace(tzinfo=None)
+	except:
+		pass
+
+
+
+
         
-        self.start_date = self.start_date.replace(tzinfo=None)
-        self.end_date = self.end_date.replace(tzinfo=None)
         
 
 class ics_calendar:
 
     def __init__(self):
-        self.today = datetime.datetime.today() - datetime.timedelta(4)
+        self.today = datetime.datetime.today()
 
     def load_calendar(self, ics_file):
         cal = Calendar.from_ical(open(ics_file).read())
@@ -46,7 +67,11 @@ class ics_calendar:
                 elif not 'DTEND' in component.keys():
                     print "Error: No DTEND found."
                 
-                new_entry = calendar_entry(component['DTSTART'].dt, component['DTEND'].dt, component['SUMMARY'])
+		summary = ''
+		if 'SUMMARY' in component:
+			summary = component['SUMMARY']
+
+                new_entry = calendar_entry(component['DTSTART'].dt, component['DTEND'].dt, summary)
                 self.calendar_entries.append(new_entry)
                 
     
@@ -59,7 +84,16 @@ class ics_calendar:
         today_start = datetime.datetime(self.today.year, self.today.month, self.today.day,0,0,0)
         today_end = today_start + datetime.timedelta(days=1)
         
+	#print "today start: " + str(today_start)
+	#print "today end: " + str(today_end)
+	#print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1"
+	
+
         for entry in self.calendar_entries:
+	    print "start: " + str(entry.start_date)
+	    print "end: " + str(entry.end_date)
+	    print "summary: " + entry.summary
+	    print "-----------------"
             if entry.start_date > today_start and entry.end_date < today_end:
                 self.todays_events.append(entry)
     
