@@ -4,10 +4,10 @@ import pytz
 import datetime
 
 
-week_days= {'MO':0,'TU':1,'WE':2,'TH':3,'FR':4,'SA':5,'SU':6}
+week_days = {'MO':0, 'TU':1, 'WE':2, 'TH':3, 'FR':4, 'SA':5, 'SU':6}
 
 
-#This is what will be used by the calendar view
+# This is what will be used by the calendar view
 class schedule_entry:
     def __init__(self):
         self.time = 0
@@ -129,7 +129,7 @@ class ics_calendar:
                     new_entry = calendar_entry(component['DTSTART'].dt, component['DTEND'].dt, summary, frequency, days, count, by_set_pos, interval, except_days)
                     self.calendar_entries.append(new_entry)
             
-            except: #if we encounter an exception, just skip this entry
+            except:  # if we encounter an exception, just skip this entry
                 raise
                     
 
@@ -139,23 +139,20 @@ class ics_calendar:
         if len(self.calendar_entries) == 0:
             return 
         
-        today_start = datetime.datetime(self.today.year, self.today.month, self.today.day,0,0,0)
+        today_start = datetime.datetime(self.today.year, self.today.month, self.today.day, 0, 0, 0)
         today_end = today_start + datetime.timedelta(days=1)
         
-        #print "today start: " + str(today_start)
-        #print "today end: " + str(today_end)
-        #print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1"
+        # print "today start: " + str(today_start)
+        # print "today end: " + str(today_end)
+        # print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1"
     
 
         for entry in self.calendar_entries:
-            #print "start: " + str(entry.start_date)
-            #print "end: " + str(entry.end_date)
-            #print "summary: " + entry.summary
-            #print "-----------------"
+            # print "start: " + str(entry.start_date)
+            # print "end: " + str(entry.end_date)
+            # print "summary: " + entry.summary
+            # print "-----------------"
             cur_entry = entry
-            
-            if entry.except_dates: 
-                print entry.except_dates
             
             if entry.except_dates and self.today.date() in entry.except_dates:
                 continue
@@ -165,32 +162,32 @@ class ics_calendar:
             if 'WEEKLY' in cur_entry.frequency:
                 
                 if self.today > entry.start_date and self.today.weekday() in cur_entry.days:
-                    if cur_entry.count and (self.today - entry.start_date).days/7 > cur_entry.count:
+                    if cur_entry.count and (self.today - entry.start_date).days / 7 > cur_entry.count:
                         continue
                     
-                    if cur_entry.interval and (self.today - entry.start_date).days/7 % cur_entry.interval[0] != 0:
+                    if cur_entry.interval and (self.today - entry.start_date).days / 7 % cur_entry.interval[0] != 0:
                         continue                        
                             
-                    cur_entry.start_date = datetime.datetime(self.today.year, self.today.month, self.today.day, 
+                    cur_entry.start_date = datetime.datetime(self.today.year, self.today.month, self.today.day,
                                                              cur_entry.start_date.hour, cur_entry.start_date.minute, cur_entry.start_date.second)
-                    cur_entry.end_date = datetime.datetime(self.today.year, self.today.month, self.today.day, 
+                    cur_entry.end_date = datetime.datetime(self.today.year, self.today.month, self.today.day,
                                                            cur_entry.end_date.hour, cur_entry.end_date.minute, cur_entry.end_date.second)
             if 'MONTHLY' in cur_entry.frequency:
-                if self.today > entry.start_date and cur_entry.by_set_pos and self.today.day/7+1 in cur_entry.by_set_pos:
+                if self.today > entry.start_date and cur_entry.by_set_pos and self.today.day / 7 + 1 in cur_entry.by_set_pos:
                     if self.today.weekday() in cur_entry.days:
-                        if cur_entry.count and (self.today - entry.start_date).days/30 > cur_entry.count:
+                        if cur_entry.count and (self.today - entry.start_date).days / 30 > cur_entry.count:
                             continue
 
-                        cur_entry.start_date = datetime.datetime(self.today.year, self.today.month, self.today.day, 
+                        cur_entry.start_date = datetime.datetime(self.today.year, self.today.month, self.today.day,
                                                                  cur_entry.start_date.hour, cur_entry.start_date.minute, cur_entry.start_date.second)
-                        cur_entry.end_date = datetime.datetime(self.today.year, self.today.month, self.today.day, 
+                        cur_entry.end_date = datetime.datetime(self.today.year, self.today.month, self.today.day,
                                                                cur_entry.end_date.hour, cur_entry.end_date.minute, cur_entry.end_date.second)
         
             
             if entry.start_date > today_start and entry.end_date < today_end:
                 self.todays_events.append(entry)
     
-    def is_there_an_event_at_time(self,start_time, end_time):
+    def is_there_an_event_at_time(self, start_time, end_time):
         for calendar_entry in self.todays_events:
 
             if start_time >= calendar_entry.start_date and start_time < calendar_entry.end_date:
@@ -200,7 +197,7 @@ class ics_calendar:
     def generate_daily_schedule(self):
         half_hour = datetime.timedelta(minutes=30)
         
-        #go from 8 to 5
+        # go from 8 to 5
         start_time = datetime.datetime(self.today.year, self.today.month, self.today.day, 9)
         end_time = datetime.datetime(self.today.year, self.today.month, self.today.day, 18)
         
@@ -211,7 +208,7 @@ class ics_calendar:
         last_summary = None        
         i = 0
         while cur_time < end_time:
-            event = self.is_there_an_event_at_time(cur_time, cur_time+half_hour)
+            event = self.is_there_an_event_at_time(cur_time, cur_time + half_hour)
             
             
             if i == 0:
@@ -244,9 +241,9 @@ class ics_calendar:
                     cur_entry.second_half_hour = 'free'
                     last_summary = None
 
-            #print cur_time.strftime("%H:%M") + "-",
-            #print (cur_time+half_hour).strftime("%H:%M") + ": ",
-            #print str(event != None)
+            # print cur_time.strftime("%H:%M") + "-",
+            # print (cur_time+half_hour).strftime("%H:%M") + ": ",
+            # print str(event != None)
             
             cur_time += half_hour
             
@@ -259,7 +256,7 @@ class ics_calendar:
     def get_todays_schedule(self, ics_file):
         self.load_calendar(ics_file)
         self.get_todays_events()
-        #for e in self.todays_events:
+        # for e in self.todays_events:
         #    print str(e.start_date) + " - "  + str(e.end_date)
         return self.generate_daily_schedule()
         
@@ -268,13 +265,12 @@ class ics_calendar:
 if __name__ == "__main__":
     cal = ics_calendar()
     v = cal.get_todays_schedule('Nelson_Derek_Calendar.ics')
-    for e in v:
-        print e.time + ": " + e.first_half_hour + "," + e.second_half_hour + '   ',
-        if e.first_half_hour_description:
-            print e.first_half_hour_description,
-        print ': ',
-        if e.second_half_hour_description:
-            print e.second_half_hour_description,
-        
-        print
+#    for e in v:
+#        print e.time + ": " + e.first_half_hour + "," + e.second_half_hour + '   ',
+#        if e.first_half_hour_description:
+#            print e.first_half_hour_description,
+#        print ': ',
+#        if e.second_half_hour_description:
+#            print e.second_half_hour_description,
+#        print
 
