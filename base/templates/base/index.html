@@ -11,6 +11,7 @@
 
 
 <script>
+	var lastHour = 0
 	function startTime()
 	{
 		var today = new Date();
@@ -19,6 +20,12 @@
 		var month = today.getMonth();
 		var day = today.getDate();
 		var ampm = "AM"; 
+
+		if(lastHour == 23 && hour == 0)
+		{
+			location.reload(); //refresh page to load new day's calendar
+		}
+		lastHour = hour;
 		
 	    // add a zero in front of numbers<10
 		minute = prependZero(minute);
