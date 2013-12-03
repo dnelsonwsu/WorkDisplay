@@ -21,9 +21,10 @@
 		var day = today.getDate();
 		var ampm = "AM"; 
 
-		if(lastHour == 23 && hour == 0)
+		if(hour < lastHour)
 		{
-			location.reload(); //refresh page to load new day's calendar
+			alert("reload!");
+			location.reload(true); //refresh page to load new day's calendar
 		}
 		lastHour = hour;
 		

@@ -2,7 +2,7 @@ from icalendar import Calendar
 
 import pytz
 import datetime
-
+import traceback
 
 week_days = {'MO':0, 'TU':1, 'WE':2, 'TH':3, 'FR':4, 'SA':5, 'SU':6}
 
@@ -20,15 +20,18 @@ class schedule_entry:
 
 
 class calendar_entry:
-    def __init__(self, start_date, end_date, summary, frequency, days, count, by_set_pos, interval, except_dates):
+    def __init__(self, uid, start_date, end_date, summary, frequency, days, count, by_set_pos, interval, except_dates):
         tz = pytz.timezone('US/Mountain')
         
         self.summary = summary
+        self.uid = uid
         self.frequency = frequency
         self.count = count
         self.by_set_pos = by_set_pos
         self.interval = interval
         self.except_dates = except_dates
+        
+        self.updates = []   #specific updates to this entry(ex changing the time of one day)
         
         self.days = []
         if len(days) > 0:
@@ -37,7 +40,6 @@ class calendar_entry:
              
         self.start_date = start_date
         self.end_date = end_date
-        
         
         if type(self.start_date) == datetime.date:
             self.start_date = datetime.datetime(self.start_date.year, self.start_date.month, self.start_date.day)
@@ -72,6 +74,19 @@ class calendar_entry:
                     pass
                 new_except_dates.append(except_date.date())
             self.except_dates = new_except_dates
+            
+    def add_update(self, reoccurance_id, update_entry):
+        try:
+            tz = pytz.timezone('US/Mountain')
+            reoccurance_id = tz.normalize(reoccurance_id)
+            reoccurance_id = reoccurance_id.replace(tzinfo=None)
+        except:
+            pass
+        
+        if update_entry.summary == None or len(update_entry.summary) == 0:
+            update_entry.summary = self.summary
+            
+        self.updates.append((reoccurance_id, update_entry))
 
 
 class ics_calendar:
@@ -81,7 +96,7 @@ class ics_calendar:
 
     def load_calendar(self, ics_file):
         cal = Calendar.from_ical(open(ics_file).read())
-        self.calendar_entries = []
+        self.calendar_entries = {}
     
         for component in cal.walk():
             try:
@@ -93,6 +108,10 @@ class ics_calendar:
                         print str(component)
                         print "Error: No DTEND found."
                         continue
+                    if not 'UID' in component.keys():
+                        print str(component)
+                        print "Error: No UID found."
+                        continue
                     
                     
                     summary = ''
@@ -102,6 +121,7 @@ class ics_calendar:
                     by_set_pos = None
                     interval = None
                     except_days = None
+                    uid = component['UID']
                     
                     if 'SUMMARY' in component:
                         summary = component['SUMMARY']
@@ -126,12 +146,67 @@ class ics_calendar:
                     if 'EXDATE' in component.keys():
                         except_days = component['EXDATE'].dts
                     
-                    new_entry = calendar_entry(component['DTSTART'].dt, component['DTEND'].dt, summary, frequency, days, count, by_set_pos, interval, except_days)
-                    self.calendar_entries.append(new_entry)
-            
-            except:  # if we encounter an exception, just skip this entry
-                raise
+                    new_entry = calendar_entry(uid, component['DTSTART'].dt, component['DTEND'].dt, 
+                                               summary, frequency, days, count, by_set_pos, interval, except_days)
                     
+                    if uid in self.calendar_entries: #This is an update
+                        if not 'RECURRENCE-ID' in component:
+                            print 'Error: no RECURRENCE-ID found.'
+                            continue
+                        self.calendar_entries[uid].add_update(component['RECURRENCE-ID'].dt, new_entry)
+                    else:
+                        self.calendar_entries[uid] =  new_entry
+                    
+            except:  # if we encounter an exception print it, and skip this entry
+                traceback.print_exc() 
+                
+                #raise
+                    
+
+    def event_occurs_on_date(self, event, date_start, date_end):
+        cur_entry = event
+            
+        if event.except_dates and self.today.date() in event.except_dates:
+            return None
+        
+        if 'DAILY' in cur_entry.frequency:
+            pass
+        if 'WEEKLY' in cur_entry.frequency:
+            
+            if self.today > event.start_date and self.today.weekday() in cur_entry.days:
+                if cur_entry.count and (self.today - event.start_date).days / 7 > cur_entry.count:
+                    return None
+                
+                if cur_entry.interval and (self.today - event.start_date).days / 7 % cur_entry.interval[0] != 0:
+                    return None                        
+                        
+                cur_entry.start_date = datetime.datetime(self.today.year, self.today.month, self.today.day,
+                                                         cur_entry.start_date.hour, cur_entry.start_date.minute, cur_entry.start_date.second)
+                cur_entry.end_date = datetime.datetime(self.today.year, self.today.month, self.today.day,
+                                                       cur_entry.end_date.hour, cur_entry.end_date.minute, cur_entry.end_date.second)
+        if 'MONTHLY' in cur_entry.frequency:
+            if self.today > event.start_date and cur_entry.by_set_pos and self.today.day / 7 + 1 in cur_entry.by_set_pos:
+                if self.today.weekday() in cur_entry.days:
+                    if cur_entry.count and (self.today - event.start_date).days / 30 > cur_entry.count:
+                        return None
+
+                    cur_entry.start_date = datetime.datetime(self.today.year, self.today.month, self.today.day,
+                                                             cur_entry.start_date.hour, cur_entry.start_date.minute, cur_entry.start_date.second)
+                    cur_entry.end_date = datetime.datetime(self.today.year, self.today.month, self.today.day,
+                                                           cur_entry.end_date.hour, cur_entry.end_date.minute, cur_entry.end_date.second)
+    
+        
+        if event.start_date > date_start and event.end_date < date_end:
+            if len(event.updates) > 0:
+                for update in event.updates:
+                    reoccurance_date = update[0]
+                    update_event = update[1]
+                    if date_end > reoccurance_date and reoccurance_date > date_start:
+                        if self.event_occurs_on_date(update_event, date_start, date_end):
+                            return update_event
+            return event
+        
+        return None
 
     def get_todays_events(self):
         self.todays_events = []
@@ -147,45 +222,14 @@ class ics_calendar:
         # print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1"
     
 
-        for entry in self.calendar_entries:
+        for entry in self.calendar_entries.values():
             # print "start: " + str(entry.start_date)
             # print "end: " + str(entry.end_date)
             # print "summary: " + entry.summary
             # print "-----------------"
-            cur_entry = entry
-            
-            if entry.except_dates and self.today.date() in entry.except_dates:
-                continue
-            
-            if 'DAILY' in cur_entry.frequency:
-                pass
-            if 'WEEKLY' in cur_entry.frequency:
-                
-                if self.today > entry.start_date and self.today.weekday() in cur_entry.days:
-                    if cur_entry.count and (self.today - entry.start_date).days / 7 > cur_entry.count:
-                        continue
-                    
-                    if cur_entry.interval and (self.today - entry.start_date).days / 7 % cur_entry.interval[0] != 0:
-                        continue                        
-                            
-                    cur_entry.start_date = datetime.datetime(self.today.year, self.today.month, self.today.day,
-                                                             cur_entry.start_date.hour, cur_entry.start_date.minute, cur_entry.start_date.second)
-                    cur_entry.end_date = datetime.datetime(self.today.year, self.today.month, self.today.day,
-                                                           cur_entry.end_date.hour, cur_entry.end_date.minute, cur_entry.end_date.second)
-            if 'MONTHLY' in cur_entry.frequency:
-                if self.today > entry.start_date and cur_entry.by_set_pos and self.today.day / 7 + 1 in cur_entry.by_set_pos:
-                    if self.today.weekday() in cur_entry.days:
-                        if cur_entry.count and (self.today - entry.start_date).days / 30 > cur_entry.count:
-                            continue
-
-                        cur_entry.start_date = datetime.datetime(self.today.year, self.today.month, self.today.day,
-                                                                 cur_entry.start_date.hour, cur_entry.start_date.minute, cur_entry.start_date.second)
-                        cur_entry.end_date = datetime.datetime(self.today.year, self.today.month, self.today.day,
-                                                               cur_entry.end_date.hour, cur_entry.end_date.minute, cur_entry.end_date.second)
-        
-            
-            if entry.start_date > today_start and entry.end_date < today_end:
-                self.todays_events.append(entry)
+            event = self.event_occurs_on_date(entry, today_start, today_end)
+            if event:
+                self.todays_events.append(event)
     
     def is_there_an_event_at_time(self, start_time, end_time):
         for calendar_entry in self.todays_events:
@@ -265,12 +309,11 @@ class ics_calendar:
 if __name__ == "__main__":
     cal = ics_calendar()
     v = cal.get_todays_schedule('Nelson_Derek_Calendar.ics')
-#    for e in v:
-#        print e.time + ": " + e.first_half_hour + "," + e.second_half_hour + '   ',
-#        if e.first_half_hour_description:
-#            print e.first_half_hour_description,
-#        print ': ',
-#        if e.second_half_hour_description:
-#            print e.second_half_hour_description,
-#        print
-
+    for e in v:
+        print e.time + ": " + e.first_half_hour + "," + e.second_half_hour + '   ',
+        if e.first_half_hour_description:
+            print e.first_half_hour_description,
+        print ': ',
+        if e.second_half_hour_description:
+            print e.second_half_hour_description,
+        print
