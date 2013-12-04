@@ -130,6 +130,11 @@ class ics_calendar:
                         if str(component['TRANSP']) == 'TRANSPARENT':
                             continue
                     
+                    if "X-MICROSOFT-CDO-BUSYSTATUS" in component.keys():
+                        if component['X-MICROSOFT-CDO-BUSYSTATUS'] != 'BUSY':
+                            continue
+                            
+                    
                     if 'RRULE' in component.keys():
                         frequency = component['RRULE']['FREQ']
                         days = component['RRULE']['BYDAY']
@@ -195,15 +200,15 @@ class ics_calendar:
                     cur_entry.end_date = datetime.datetime(self.today.year, self.today.month, self.today.day,
                                                            cur_entry.end_date.hour, cur_entry.end_date.minute, cur_entry.end_date.second)
     
-        
+        if len(event.updates) > 0:
+            for update in event.updates:
+                reoccurance_date = update[0]
+                update_event = update[1]
+                if date_end > reoccurance_date and reoccurance_date > date_start:
+                    if self.event_occurs_on_date(update_event, date_start, date_end):
+                        return update_event
+                    
         if event.start_date > date_start and event.end_date < date_end:
-            if len(event.updates) > 0:
-                for update in event.updates:
-                    reoccurance_date = update[0]
-                    update_event = update[1]
-                    if date_end > reoccurance_date and reoccurance_date > date_start:
-                        if self.event_occurs_on_date(update_event, date_start, date_end):
-                            return update_event
             return event
         
         return None
