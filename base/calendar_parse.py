@@ -131,7 +131,7 @@ class ics_calendar:
                             continue
                     
                     if "X-MICROSOFT-CDO-BUSYSTATUS" in component.keys():
-                        if component['X-MICROSOFT-CDO-BUSYSTATUS'] != 'BUSY':
+                        if not (component['X-MICROSOFT-CDO-BUSYSTATUS'] == 'BUSY' or component['X-MICROSOFT-CDO-BUSYSTATUS'] == 'TENTATIVE'):
                             continue
                             
                     
