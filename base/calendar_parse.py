@@ -170,7 +170,10 @@ class ics_calendar:
 
     def event_occurs_on_date(self, event, date_start, date_end):
         cur_entry = event
-            
+        
+        difference_since_start_date = self.today - event.start_date
+        days_since_start_date = int(round(float(difference_since_start_date.days) + float(difference_since_start_date.seconds)/3600/24, 0 ))
+    
         if event.except_dates and self.today.date() in event.except_dates:
             return None
         
@@ -179,10 +182,10 @@ class ics_calendar:
         if 'WEEKLY' in cur_entry.frequency:
             
             if self.today > event.start_date and self.today.weekday() in cur_entry.days:
-                if cur_entry.count and (self.today - event.start_date).days / 7 > cur_entry.count:
+                if cur_entry.count and days_since_start_date / 7 > cur_entry.count:
                     return None
                 
-                if cur_entry.interval and (self.today - event.start_date).days / 7 % cur_entry.interval[0] != 0:
+                if cur_entry.interval and days_since_start_date / 7 % cur_entry.interval[0] != 0:
                     return None                        
                         
                 cur_entry.start_date = datetime.datetime(self.today.year, self.today.month, self.today.day,
@@ -192,7 +195,7 @@ class ics_calendar:
         if 'MONTHLY' in cur_entry.frequency:
             if self.today > event.start_date and cur_entry.by_set_pos and self.today.day / 7 + 1 in cur_entry.by_set_pos:
                 if self.today.weekday() in cur_entry.days:
-                    if cur_entry.count and (self.today - event.start_date).days / 30 > cur_entry.count:
+                    if cur_entry.count and days_since_start_date / 30 > cur_entry.count:
                         return None
 
                     cur_entry.start_date = datetime.datetime(self.today.year, self.today.month, self.today.day,
@@ -222,16 +225,16 @@ class ics_calendar:
         today_start = datetime.datetime(self.today.year, self.today.month, self.today.day, 0, 0, 0)
         today_end = today_start + datetime.timedelta(days=1)
         
-        # print "today start: " + str(today_start)
-        # print "today end: " + str(today_end)
-        # print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1"
+        #print "today start: " + str(today_start)
+        #print "today end: " + str(today_end)
+        #print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     
 
         for entry in self.calendar_entries.values():
-            # print "start: " + str(entry.start_date)
-            # print "end: " + str(entry.end_date)
-            # print "summary: " + entry.summary
-            # print "-----------------"
+            #print "start: " + str(entry.start_date)
+            #print "end: " + str(entry.end_date)
+            #print "summary: " + entry.summary
+            #print "-----------------"
             event = self.event_occurs_on_date(entry, today_start, today_end)
             if event:
                 self.todays_events.append(event)
